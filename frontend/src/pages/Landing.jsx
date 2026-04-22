@@ -91,7 +91,7 @@ function Navbar() {
         </nav>
 
         <div className="nb-act">
-          <motion.button className="nb-viz" onClick={() => window.location.href = 'expert.html'}
+          <motion.button className="nb-viz" onClick={() => navigate('/visualizer')}
             whileHover={{ scale:1.04, boxShadow:'0 0 24px rgba(124,58,237,0.45)' }}
             whileTap={{ scale:0.96 }}
           >
@@ -291,7 +291,7 @@ function Hero() {
 
         <motion.div className="hero-btns" variants={V.up}>
           <motion.button className="hb-primary"
-            onClick={() => window.location.href = 'expert.html'}
+            onClick={() => navigate('/visualizer')}
             whileHover={{ scale:1.04, y:-3 }}
             whileTap={{ scale:0.96 }}
           >

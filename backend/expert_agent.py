@@ -199,7 +199,7 @@ async def unified_invoke(messages, model_name=EXPERT_MODEL, temperature=0.4, res
                     return MockResp(data["choices"][0]["message"]["content"])
         except Exception: continue
     
-    raise Exception("ALL_PROVIDERS_EXHAUSTED: Groq, GLM, and DeepSeek are all currently unavailable.")
+    raise Exception("ALL_PROVIDERS_EXHAUSTED: AI logic engine is currently unavailable. Please check if GROQ_API_KEY is correctly set in your environment variables.")
 
 def robust_split(html_content: str) -> Dict[str, str]:
     """Failsafe Regex Splitter for single-file projects."""

@@ -35,11 +35,13 @@ app.add_middleware(
 )
 
 # Initialize API Pools
-groq_key_str = os.getenv("GROQ_API_KEY")
-api_keys = [k.strip() for k in groq_key_str.split(",") if k.strip()] if groq_key_str else []
+def get_env_keys(key_name):
+    key_str = os.getenv(key_name)
+    if not key_str: return []
+    return [k.strip() for k in key_str.split(",") if k.strip()]
 
-ds_key_str = os.getenv("DEEPSEEK_API_KEY")
-deepseek_keys = [k.strip() for k in ds_key_str.split(",") if k.strip()] if ds_key_str else []
+api_keys = get_env_keys("GROQ_API_KEY")
+deepseek_keys = get_env_keys("DEEPSEEK_API_KEY")
 
 class KeyManager:
     def __init__(self, groq_keys, ds_keys):
@@ -302,10 +304,21 @@ async def analyze(request: AnalyzeRequest):
         return {"text": f"⚠️ Analyzer Error: {str(e)}", "type": "error"}
 
 @app.get("/health")
+@app.get("/api/health")
 async def health():
-    return {"status": "operational", "engine": "llama3-70b"}
+    groq_status = "configured" if api_keys else "MISSING"
+    return {
+        "status": "operational", 
+        "engine": "llama3-70b",
+        "keys_status": {
+            "groq": groq_status,
+            "deepseek": "configured" if deepseek_keys else "missing"
+        },
+        "version": "2.2-vercel"
+    }
 
 @app.post("/api/expert/generate")
+@app.post("/expert/generate")
 async def expert_generate(request: ExpertRequest):
     return StreamingResponse(
         expert_agent.expert_generate_project(request.prompt, request.context),

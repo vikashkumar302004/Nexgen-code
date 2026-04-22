@@ -73,7 +73,7 @@ const ExpertMode = () => {
     setResult({ mermaid: null, overview: "" });
 
     try {
-      const resp = await fetch(`http://${window.location.hostname}:8000/api/expert/generate`, {
+      const resp = await fetch(`/api/expert/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })

@@ -1250,7 +1250,8 @@
     <div id="toast-container" class="toast-container"></div>
 
     <script>
-        const ANALYZE_URL = `/api/analyze`;
+        const API_BASE = localStorage.getItem('SURYA_BACKEND_URL') || '';
+        const ANALYZE_URL = `${API_BASE}/api/analyze`;
         
         let activeInputMode = 'prompt';
         let activeOutputTab = 'flowchart';

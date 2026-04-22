@@ -72,8 +72,11 @@ const ExpertMode = () => {
     setStatus('generating');
     setResult({ mermaid: null, overview: "" });
 
+    // Use Render backend if running on production or if explicitly set
+    const API_BASE = window.localStorage.getItem('SURYA_BACKEND_URL') || '';
+    
     try {
-      const resp = await fetch(`/api/expert/generate`, {
+      const resp = await fetch(`${API_BASE}/api/expert/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })

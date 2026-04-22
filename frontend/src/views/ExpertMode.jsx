@@ -72,8 +72,8 @@ const ExpertMode = () => {
     setStatus('generating');
     setResult({ mermaid: null, overview: "" });
 
-    // Use Render backend if running on production or if explicitly set
-    const API_BASE = window.localStorage.getItem('SURYA_BACKEND_URL') || '';
+    // Use Render backend as default for production
+    const API_BASE = window.localStorage.getItem('SURYA_BACKEND_URL') || 'https://nexgen-code.onrender.com';
     
     try {
       const resp = await fetch(`${API_BASE}/api/expert/generate`, {

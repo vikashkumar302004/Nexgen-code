@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+gunicorn
+python-dotenv
+groq
+pydantic
+httpx
+langchain-groq
+langgraph
+playwright
+beautifulsoup4
+langchain-core
+mangum

@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCode — Expert Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-deep:    #050709;
+            --bg-mid:     #0c0e14;
+            --bg-surface: #13131a;
+            --bg-raised:  #1a1d27;
+            --border:     rgba(255,255,255,0.07);
+            --border-h:   rgba(255,255,255,0.13);
+            --accent:     #7c3aed;
+            --accent-dim: rgba(124,58,237,0.12);
+            --text-1: #f0f0f5;
+            --text-2: #9192a0;
+            --text-3: #4b4d5e;
+            --green:  #22c55e;
+            --red:    #ef4444;
+            --yellow: #eab308;
+            --blue:   #3b82f6;
+            --orange: #f97316;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-1);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 52px;
+            background: rgba(5, 7, 9, 0.94);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            color: var(--text-1);
+            border-color: var(--border-h);
+        }
+
+        .divider {
+            width: 1px;
+            height: 18px;
+            background: var(--border);
+        }
+
+        .logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-1);
+        }
+
+        .pill {
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            color: #a78bfa;
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .status-pill {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            color: #a78bfa;
+            font-size: 12px;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #a78bfa;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(167, 139, 250, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(167, 139, 250, 0); }
+        }
+
+        /* Mermaid Stabilization Overrides */
+        .chart-container svg {
+            overflow: visible !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        .edgeLabel {
+            background-color: #0d1117 !important;
+            color: var(--text-2) !important;
+            padding: 2px 8px !important;
+            border-radius: 4px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255,255,255,0.05) !important;
+        }
+        .label foreignObject {
+            overflow: visible !important;
+        }
+        .node .label {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 13px !important;
+        }
+        .edgePath .path {
+            stroke: #7c3aed !important;
+            stroke-width: 2px !important;
+        }
+        .marker {
+            fill: #7c3aed !important;
+            stroke: #7c3aed !important;
+        }
+
+        /* NEW: Cinematic Animations */
+        .flowing-path {
+            stroke: #7c3aed !important;
+            stroke-width: 2px !important;
+        }
+
+        @keyframes flow-dash {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .node {
+            transition: none !important;
+        }
+
+        .node:hover rect, .node:hover circle, .node:hover polygon {
+            fill: rgba(124, 58, 237, 0.15) !important;
+            stroke: #fff !important;
+            stroke-width: 3px !important;
+            filter: drop-shadow(0 0 12px rgba(124, 58, 237, 0.7));
+        }
+
+        .gemini-pill {
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            font-size: 11px;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .export-btn {
+            height: 32px;
+            padding: 0 14px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 58, 237, 0.35);
+            color: #a78bfa;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .export-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .export-btn:hover {
+            background: rgba(124, 58, 237, 0.22);
+            border-color: var(--accent);
+        }
+
+        /* LAYOUT */
+        .main-container {
+            flex: 1;
+            display: flex;
+            margin-top: 52px;
+            overflow: hidden;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            width: 360px;
+            min-width: 360px;
+            background: var(--bg-mid);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .input-tabs {
+            display: flex;
+            padding: 12px 14px 0;
+            gap: 3px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            height: 34px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid transparent;
+            border-bottom: none;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            background: transparent;
+            color: var(--text-3);
+            transition: all 0.18s;
+        }
+
+        .mode-tab:hover {
+            color: var(--text-2);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .mode-tab.active {
+            background: var(--bg-surface);
+            color: var(--text-1);
+            border-color: var(--border);
+            border-bottom-color: var(--bg-surface);
+        }
+
+        .tab-separator {
+            border-top: 1px solid var(--border);
+            margin: 0 14px;
+        }
+
+        .input-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .input-mode-content {
+            display: none;
+        }
+
+        .input-mode-content.active {
+            display: block;
+        }
+
+        /* UPLOAD TAB */
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--bg-surface);
+            margin-top: 10px;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .upload-icon { font-size: 32px; }
+        .upload-title { font-size: 14px; color: var(--text-2); font-weight: 500; }
+        .upload-subtitle { font-size: 11px; color: var(--text-3); }
+        .or-divider { font-size: 11px; color: var(--text-3); }
+
+        .browse-btn {
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            padding: 7px 18px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .file-info-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 14px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .lang-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .file-details { flex: 1; overflow: hidden; }
+        .file-name { font-size: 13px; color: var(--text-1); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-size { font-size: 11px; color: var(--text-3); }
+
+        .clear-file {
+            width: 20px;
+            color: var(--text-3);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .clear-file:hover { color: var(--red); }
+
+        .code-preview {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+            line-height: 1.6;
+            max-height: 100px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+            display: none;
+        }
+
+        .preview-fade {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, var(--bg-deep));
+        }
+
+        .lang-badge {
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #a78bfa;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        /* WRITE TAB */
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .label-text { font-size: 10px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        select {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: var(--text-1);
+            font-size: 11px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .editor-wrap {
+            display: flex;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+            min-height: 220px;
+        }
+
+        .line-nums {
+            width: 38px;
+            padding: 12px 8px 12px 0;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-3);
+            background: var(--bg-deep);
+            border-right: 1px solid var(--border);
+            user-select: none;
+            line-height: 1.65;
+        }
+
+        .code-area {
+            flex: 1;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-1);
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            line-height: 1.65;
+            min-height: 220px;
+        }
+
+        .editor-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 14px;
+            padding: 6px 10px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-deep);
+        }
+
+        .stat-item { font-size: 10px; color: var(--text-3); }
+        .copy-btn { font-size: 10px; color: var(--text-3); background: none; border: none; cursor: pointer; transition: color 0.2s; }
+        .copy-btn:hover { color: var(--text-1); }
+
+        /* PROMPT TAB */
+        .prompt-textarea {
+            width: 100%;
+            min-height: 110px;
+            max-height: 160px;
+            resize: vertical;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 13px 15px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: var(--text-1);
+            line-height: 1.65;
+            outline: none;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .prompt-textarea:focus {
+            border-color: rgba(124, 58, 237, 0.5);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+        }
+
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .prompt-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .prompt-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-1);
+            background: var(--accent-dim);
+        }
+
+        /* BOTTOM ACTION */
+        .bottom-action {
+            position: sticky;
+            bottom: 0;
+            padding: 14px 16px;
+            background: var(--bg-mid);
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            height: 48px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .analyze-btn:hover {
+            filter: brightness(1.12);
+            box-shadow: 0 6px 28px rgba(124, 58, 237, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .analyze-btn:active {
+            transform: translateY(0);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        .powered-by {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 10px;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            flex: 1;
+            background: var(--bg-deep);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .output-tab-bar {
+            height: 44px;
+            background: var(--bg-mid);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: stretch;
+            padding: 0 16px;
+            gap: 2px;
+        }
+
+        .out-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 16px;
+            font-size: 12px;
+            color: var(--text-3);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.18s;
+            white-space: nowrap;
+        }
+
+        .out-tab:hover { color: var(--text-2); }
+        .out-tab.active { color: var(--text-1); border-bottom-color: var(--accent); }
+
+        .out-tab-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            height: 30px;
+            padding: 0 14px;
+            border-radius: 6px;
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: #a78bfa;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:disabled { opacity: 0.35; pointer-events: none; }
+        .icon-btn:hover:not(:disabled) { box-shadow: 0 0 12px rgba(124, 58, 237, 0.2); border-color: var(--accent); }
+
+        .out-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            position: relative;
+        }
+
+        .output-section { display: none; }
+        .output-section.active { display: block; }
+
+        /* Suppress Mermaid Global Error UI */
+        .mermaid-error, #mermaid-error-id, [id^="dmermaid"] {
+            display: none !important;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(79, 70, 229, 0.15));
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-title { font-size: 18px; color: var(--text-2); font-weight: 500; }
+        .empty-subtitle { font-size: 13px; color: var(--text-3); }
+
+        .feature-pills { display: flex; gap: 8px; margin-top: 8px; }
+        .feature-pill { background: var(--bg-raised); border: 1px solid var(--border); color: var(--text-3); font-size: 11px; padding: 5px 12px; border-radius: 20px; }
+
+        /* FLOWCHART STYLES */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .header-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
+        .header-subtitle { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+        .zoom-controls { display: flex; align-items: center; gap: 6px; }
+        .zoom-btn { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-raised); border: 1px solid var(--border); color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .reset-btn { font-size: 11px; color: var(--text-3); background: none; border: none; cursor: pointer; padding: 0 8px; }
+
+        .chart-container {
+            background: radial-gradient(circle at center, #0c0e14 0%, #050709 100%);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            min-height: 500px;
+            max-height: 75vh;
+            overflow: auto;
+            position: relative;
+            cursor: grab;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(124, 58, 237, 0.1);
+        }
+        
+        .chart-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .chart-container:active {
+            cursor: grabbing;
+        }
+        .chart-container svg { display: block; margin: 0 auto; }
+
+        #flowchart-container svg {
+            transition: width 0.2s ease, height 0.2s ease;
+            transform-origin: top center;
+            display: block;
+            margin: 0 auto;
+        }
+
+/* Start/End nodes — green */
+#flowchart-container .node.start rect,
+#flowchart-container .node.end rect,
+#flowchart-container svg .node:first-child rect,
+#flowchart-container svg .node:last-child rect {
+  fill: #052e16 !important;
+  stroke: #22c55e !important;
+  stroke-width: 2px !important;
+}
+
+/* Decision nodes (diamond shape) — yellow/amber */
+#flowchart-container .node rect.label-container,
+#flowchart-container svg g.node polygon {
+  fill: #2d1f00 !important;
+  stroke: #eab308 !important;
+  stroke-width: 2px !important;
+}
+
+/* Process nodes (rectangles) — purple */
+#flowchart-container svg g.node rect {
+  fill: #1a0d2e !important;
+  stroke: #7c3aed !important;
+  stroke-width: 2px !important;
+  rx: 10 !important;
+}
+
+/* Rounded nodes — blue */
+#flowchart-container svg g.node circle,
+#flowchart-container svg g.node ellipse {
+  fill: #0c1a3a !important;
+  stroke: #3b82f6 !important;
+  stroke-width: 2px !important;
+}
+
+/* Stadium/pill shaped nodes — teal */
+#flowchart-container svg g.node path {
+  fill: #042f2e !important;
+  stroke: #14b8a6 !important;
+  stroke-width: 2px !important;
+}
+
+/* All node text */
+#flowchart-container svg g.node .label p,
+#flowchart-container svg g.node .label span,
+#flowchart-container svg g.node text {
+  color: #f0f0f5 !important;
+  fill: #f0f0f5 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Arrows */
+#flowchart-container svg .edgePath .path {
+  stroke: #7c3aed !important;
+  stroke-width: 2px !important;
+}
+
+/* Arrow edge labels (Yes/No) */
+#flowchart-container svg .edgeLabel .label rect {
+  fill: #1a1d27 !important;
+  stroke: #7c3aed !important;
+  stroke-width: 1px !important;
+}
+#flowchart-container svg .edgeLabel span,
+#flowchart-container svg .edgeLabel p,
+#flowchart-container svg .edgeLabel div {
+  color: #f0f0f5 !important;
+  background: #1a1d27 !important;
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  display: inline-block !important;
+  line-height: 1 !important;
+}
+
+/* Arrowhead marker */
+#flowchart-container svg marker path {
+  fill: #7c3aed !important;
+  stroke: #7c3aed !important;
+}
+
+/* Node hover effect */
+#flowchart-container svg g.node:hover rect,
+#flowchart-container svg g.node:hover polygon,
+#flowchart-container svg g.node:hover circle {
+  filter: brightness(1.3);
+  cursor: pointer;
+}
+
+        /* DOCS STYLES */
+        .overview-card {
+            background: var(--accent-dim);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+
+        .overview-title { font-size: 13px; font-weight: 600; color: #a78bfa; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .overview-text { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+        .overview-stats { display: flex; gap: 14px; margin-top: 14px; font-size: 12px; color: var(--text-3); }
+        .stat-dot { color: var(--text-3); padding: 0 4px; }
+
+        .score-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .complexity-gauge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) var(--p), var(--bg-mid) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 20px var(--accent-dim);
+        }
+        .complexity-gauge::after {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background: var(--bg-surface);
+            border-radius: 50%;
+        }
+        .score-val {
+            position: relative;
+            z-index: 2;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-1);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            flex: 1;
+        }
+        .metric-card {
+            background: var(--bg-mid);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .metric-label { font-size: 10px; color: var(--text-3); font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .metric-value { font-size: 18px; font-weight: 700; color: var(--accent); }
+        .grade-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 800;
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* ENHANCED DOCS STYLES */
+        .docs-layout { display: flex; gap: 20px; }
+        .docs-nav { width: 180px; flex-shrink: 0; position: sticky; top: 0; }
+        .docs-content { flex: 1; }
+        .docs-nav-item { 
+            padding: 10px 12px; border-radius: 8px; font-size: 12px; color: var(--text-3); cursor: pointer; transition: all 0.2s; border: 1px solid transparent; margin-bottom: 4px;
+        }
+        .docs-nav-item:hover { background: var(--bg-surface); color: var(--text-2); }
+        .docs-nav-item.active { background: var(--bg-surface); border-color: var(--border); color: var(--accent); font-weight: 600; }
+
+        .doc-card {
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; transition: transform 0.2s, border-color 0.2s;
+        }
+        .doc-card:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+        .fn-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        .fn-meta { display: flex; flex-direction: column; gap: 4px; }
+        .fn-name-big { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #d2a8ff; }
+        .fn-type-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; width: fit-content; }
+        .fn-desc-big { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 20px; }
+        
+        .code-example-wrap { background: var(--bg-deep); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; margin-top: 16px; }
+        .example-header { background: var(--bg-surface); padding: 8px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .example-label { font-size: 11px; font-weight: 600; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
+        .copy-btn-sm { background: none; border: 1px solid var(--border); color: var(--text-3); font-size: 10px; padding: 3px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .copy-btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+        .example-pre { padding: 16px; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-1); overflow-x: auto; line-height: 1.5; }
+
+        /* ENHANCED TECH STACK STYLES */
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+        .tech-card { 
+            background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;
+        }
+        .tech-card:hover { border-color: var(--accent); background: var(--bg-raised); }
+        .tech-top { display: flex; align-items: center; gap: 12px; }
+        .tech-icon-box { width: 36px; height: 36px; border-radius: 10px; background: var(--bg-deep); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: var(--accent); border: 1px solid var(--border); }
+        .tech-info { flex: 1; }
+        .tech-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+        .tech-ver { font-size: 10px; color: var(--text-3); }
+        .tech-level-wrap { width: 100%; height: 6px; background: var(--bg-deep); border-radius: 3px; overflow: hidden; }
+        .tech-level-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #4f46e5); border-radius: 3px; }
+        .tech-stat { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-3); }
+
+        /* ENHANCED COMPLEXITY STYLES */
+        .complexity-hero { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .hero-bg-glow { position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%); filter: blur(40px); z-index: 0; opacity: 0.5; }
+        .hero-content { position: relative; z-index: 1; display: flex; align-items: center; gap: 32px; }
+        
+        .radar-box { width: 140px; height: 140px; flex-shrink: 0; position: relative; }
+        .radar-svg { transform: rotate(-90deg); }
+        .radar-circle { fill: none; stroke: var(--border); stroke-width: 1; }
+        .radar-axis { stroke: var(--border); stroke-width: 1; }
+        .radar-area { fill: var(--accent-dim); stroke: var(--accent); stroke-width: 2; fill-opacity: 0.3; }
+
+        .score-display { display: flex; flex-direction: column; }
+        .score-title { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .score-big { font-size: 48px; font-weight: 800; color: var(--text-1); line-height: 1; margin-bottom: 4px; }
+        .score-label { font-size: 14px; color: var(--accent); font-weight: 600; }
+
+        .metrics-detailed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+        .detail-metric-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; }
+        .metric-icon { font-size: 18px; margin-bottom: 12px; }
+        .metric-name { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; margin-bottom: 4px; }
+        .metric-big-val { font-size: 20px; font-weight: 700; color: var(--text-1); }
+        .metric-status { position: absolute; top: 16px; right: 16px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+        .status-optimal { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .status-risk { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        .terminal-line { color: var(--text-3); }
+        .terminal-line.active { color: var(--accent); font-weight: 700; }
+        .terminal-line.done { color: var(--green); }
+        .pulse-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .skeleton-wrapper { padding: 20px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .skeleton { background: linear-gradient(90deg, var(--bg-raised) 25%, var(--bg-surface) 50%, var(--bg-raised) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+        
+        .skeleton-block { height: 300px; width: 100%; border-radius: 14px; margin-bottom: 20px; }
+        .skeleton-line { height: 14px; width: 100%; margin-bottom: 10px; }
+        .skeleton-pill { height: 24px; width: 120px; border-radius: 20px; margin-bottom: 16px; }
+
+        .overview-text {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.8;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .fn-desc-big {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            margin-bottom: 24px;
+        }
+
+        /* TOAST */
+        .toast-container { position: fixed; top: 64px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: var(--bg-raised); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-1); box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: slideIn 0.3s ease; max-width: 320px;
+        }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='/'">🏠</button>
+            <div class="divider"></div>
+            <div style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="window.location.href='/'">
+                <div class="logo">&lt;/&gt;</div>
+                <span class="brand-name">NexCode</span>
+            </div>
+            <div class="divider"></div>
+            <button class="back-btn" style="width: auto; padding: 0 12px; font-size: 11px; font-weight: 600; border: 1px solid var(--border);" onclick="window.location.href='/app'">Home</button>
+            <button class="back-btn" style="width: auto; padding: 0 12px; font-size: 11px; font-weight: 700; border: 1px solid var(--accent); color: var(--accent);" onclick="window.location.href='/expert.html'">Expert Mode</button>
+        </div>
+        <div class="nav-right">
+            <div id="nav-status" class="status-pill">
+                <div class="pulse-dot"></div>
+                <span>Analyzing...</span>
+            </div>
+            <div class="gemini-pill">Gemini 1.5 Flash</div>
+            <button id="main-export-btn" class="export-btn" onclick="downloadPDF()">⬇ Export PDF</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="input-tabs">
+                <button class="mode-tab" id="tab-upload" onclick="switchInputMode('upload')">📁 Upload</button>
+                <button class="mode-tab" id="tab-write" onclick="switchInputMode('write')">✍️ Write</button>
+                <button class="mode-tab active" id="tab-prompt" onclick="switchInputMode('prompt')">💬 Prompt</button>
+            </div>
+            <div class="tab-separator"></div>
+            
+            <div class="input-area">
+                <div id="mode-upload" class="input-mode-content">
+                    <div class="drop-zone" id="drop-zone">
+                        <span class="upload-icon">📁</span>
+                        <span class="upload-title">Drop your code file here</span>
+                        <span class="upload-subtitle">Supports .js .py .java .cpp .ts .jsx .html .css</span>
+                        <span class="or-divider">─── or ───</span>
+                        <button class="browse-btn" onclick="document.getElementById('file-input').click()">Browse File</button>
+                        <input type="file" id="file-input" hidden accept=".js,.py,.java,.cpp,.ts,.jsx,.html,.css,.txt">
+                    </div>
+                    <div id="file-card" class="file-info-card">
+                        <div id="file-lang-dot" class="lang-dot"></div>
+                        <div class="file-details">
+                            <div id="file-name-display" class="file-name">filename.js</div>
+                            <div id="file-size-display" class="file-size">2.4 KB</div>
+                        </div>
+                        <button class="clear-file" onclick="clearUploadedFile()">×</button>
+                    </div>
+                    <div id="code-preview" class="code-preview">
+                        <div id="preview-content"></div>
+                        <div class="preview-fade"></div>
+                    </div>
+                    <div id="detected-badge" class="lang-badge">Detected: JavaScript</div>
+                </div>
+
+                <div id="mode-write" class="input-mode-content">
+                    <div class="input-header">
+                        <span class="label-text">Write your code</span>
+                        <select id="lang-select">
+                            <option value="JavaScript">JavaScript</option>
+                            <option value="TypeScript">TypeScript</option>
+                            <option value="Python">Python</option>
+                            <option value="Java">Java</option>
+                            <option value="C++">C++</option>
+                            <option value="Go">Go</option>
+                            <option value="Rust">Rust</option>
+                            <option value="PHP">PHP</option>
+                            <option value="Ruby">Ruby</option>
+                            <option value="HTML">HTML</option>
+                            <option value="CSS">CSS</option>
+                        </select>
+                    </div>
+                    <div class="editor-wrap">
+                        <div id="line-nums" class="line-nums">1</div>
+                        <textarea id="code-textarea" class="code-area" placeholder="// Write or paste your code here..." onkeyup="handleEditorUpdate()"></textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <span id="line-count" class="stat-item">1 lines</span>
+                        <span id="char-count" class="stat-item">0 chars</span>
+                        <button class="copy-btn" onclick="copyWrittenCode()">Copy</button>
+                    </div>
+                </div>
+
+                <div id="mode-prompt" class="input-mode-content active">
+                    <div class="input-header">
+                        <span class="label-text">Describe your logic</span>
+                        <span id="prompt-char-count" class="label-text">0/300</span>
+                    </div>
+                    <textarea id="prompt-textarea" class="prompt-textarea" placeholder="e.g. sum of two numbers, binary search algorithm, login form validation..." oninput="updatePromptStats()"></textarea>
+                    <div style="margin-top:20px">
+                        <span class="label-text">Examples</span>
+                        <div class="example-chips">
+                            <div class="prompt-chip" onclick="fillPrompt('➕ Create a function to calculate the sum of two numbers')">➕ Sum</div>
+                            <div class="prompt-chip" onclick="fillPrompt('🔍 Implement binary search algorithm to find an element in a sorted array')">🔍 Binary search</div>
+                            <div class="prompt-chip" onclick="fillPrompt('🫧 Write a bubble sort function for sorting an array of integers')">🫧 Bubble sort</div>
+                            <div class="prompt-chip" onclick="fillPrompt('✅ Create a regex for validating a strong password')">✅ Validation</div>
+                            <div class="prompt-chip" onclick="fillPrompt('📋 Simple ToDo list CRUD operations in JavaScript')">📋 Todo CRUD</div>
+                            <div class="prompt-chip" onclick="fillPrompt('🌳 Write a function for recursive binary tree traversal (In-order)')">🌳 Binary tree</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-action">
+                <button id="analyze-btn" class="analyze-btn" onclick="handleAnalyze()">
+                    <span id="btn-icon">🔍</span>
+                    <span id="btn-text">Analyze Code</span>
+                </button>
+                <div class="powered-by">Powered by Gemini 1.5 Flash · Free API</div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="output-tab-bar">
+                <div class="out-tab active" id="out-flowchart" onclick="switchOutputTab('flowchart')">📊 Flowchart</div>
+                <div class="out-tab" id="out-docs" onclick="switchOutputTab('docs')">📚 Docs</div>
+                <div class="out-tab" id="out-techstack" onclick="switchOutputTab('techstack')">🔧 Tech Stack</div>
+                <div class="out-tab" id="out-complexity" onclick="switchOutputTab('complexity')">📈 Complexity</div>
+                <div class="out-tab" id="out-sysdesign" onclick="switchOutputTab('sysdesign')">🏗️ System Design</div>
+                <div class="out-tab-right">
+                    <button class="icon-btn" id="sub-export-btn" disabled onclick="downloadPDF()" style="color:var(--accent); background:none; border:none; cursor:pointer; font-size:12px; font-weight:600;">⬇ PDF</button>
+                    <button class="icon-btn" style="color:var(--text-2); background:var(--bg-raised); border:1px solid var(--border); padding:4px 10px; border-radius:6px; font-size:11px; cursor:pointer;" onclick="copyShareLink()">🔗 Copy Link</button>
+                    <button class="icon-btn" style="color:var(--text-3); background:none; border:none; font-size:16px;">🔍</button>
+                </div>
+            </div>
+
+            <div class="out-content" id="output-view">
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <div class="empty-title">Ready to Analyze</div>
+                    <div class="empty-subtitle">Upload a file, write code, or describe logic</div>
+                    <div class="feature-pills">
+                        <div class="feature-pill">📊 Flowchart</div>
+                        <div class="feature-pill">📚 Docs</div>
+                        <div class="feature-pill">🔧 Tech Stack</div>
+                        <div class="feature-pill">📈 Complexity</div>
+                    </div>
+                </div>
+
+                <div id="loading-state" style="display:none">
+                    <div class="skeleton-wrapper">
+                        <div class="skeleton skeleton-block"></div>
+                        <div class="skeleton skeleton-pill"></div>
+                        <div class="skeleton skeleton-line"></div>
+                        <div style="margin-top:40px; border-top:1px solid var(--border); padding-top:20px;">
+                            <div style="font-size:11px; font-weight:700; color:var(--accent); letter-spacing:0.1em; margin-bottom:15px; display:flex; align-items:center; gap:8px;">
+                                <span class="pulse-dot"></span> ANALYZING SYSTEM ARCHITECTURE...
+                            </div>
+                            <div id="analysis-terminal" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-3); display:flex; flex-direction:column; gap:8px;">
+                                <div class="terminal-line active">Initializing Deep Logic Scanner...</div>
+                                <div class="terminal-line">Parsing code structures...</div>
+                                <div class="terminal-line">Generating architectural documentation...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-flowchart" class="output-section active">
+                    <div class="section-header">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <h3 class="header-title" style="letter-spacing:0.05em; color: #a78bfa;">🧠 Neural Synapse Visualizer</h3>
+                                <span style="font-size:10px; padding:2px 8px; border-radius:4px; background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.2); font-weight:700;">LIVE PULSE</span>
+                            </div>
+                            <p class="header-subtitle">Advanced Architectural Logic Mapping Engine</p>
+                        </div>
+                        <div style="display:flex; gap:15px; margin-right:20px;">
+                            <div style="text-align:right;">
+                                <div style="font-size:10px; color:var(--text-3); font-weight:700;">CONSISTENCY</div>
+                                <div style="font-size:14px; color:var(--text-1); font-weight:600;">98.4%</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:10px; color:var(--text-3); font-weight:700;">PROTOCOL</div>
+                                <div style="font-size:14px; color:var(--text-1); font-weight:600;">V3.2</div>
+                            </div>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomOut()">−</button>
+                            <button class="zoom-btn" onclick="zoomIn()">+</button>
+                            <button class="reset-btn" onclick="resetZoom()">Reset</button>
+                            <button class="zoom-btn" onclick="fitScreen()" style="font-size:12px">⛶</button>
+                            <button class="zoom-btn" onclick="toggleFullscreen()" style="font-size:12px">⛶</button>
+                        </div>
+                    </div>
+                    <div id="flowchart-container" class="chart-container" style="min-height:450px;">
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-3); font-size:13px;">Architecture logic will appear here...</div>
+                    </div>
+                </div>
+
+                <div id="view-docs" class="output-section">
+                    <div class="section-header">
+                        <div class="header-title">📚 Documentation</div>
+                        <button class="icon-btn" style="background:var(--bg-raised); border:1px solid var(--border)" onclick="copyAllDocs()">Copy All</button>
+                    </div>
+                    <div id="docs-container"></div>
+                </div>
+
+                <div id="view-techstack" class="output-section">
+                    <div class="section-header"><div class="header-title">🔧 Tech Stack</div></div>
+                    <div id="techstack-container"></div>
+                </div>
+
+                <div id="view-complexity" class="output-section">
+                    <div class="section-header"><div class="header-title">📈 Complexity Analysis</div></div>
+                    <div id="complexity-container"></div>
+                </div>
+
+                <div id="view-sysdesign" class="output-section">
+                    <div class="section-header">
+                        <div>
+                            <h3 class="header-title" style="color: #4ade80;">🏗️ System Architecture Map</h3>
+                            <p class="header-subtitle">Visual infrastructure and component relationship model</p>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="zoomOut()">−</button>
+                            <button class="zoom-btn" onclick="zoomIn()">+</button>
+                            <button class="reset-btn" onclick="resetZoom()">Reset</button>
+                            <button class="zoom-btn" onclick="fitScreen()" style="font-size:12px">⛶</button>
+                            <button class="zoom-btn" onclick="toggleFullscreen()" style="font-size:12px">⛶</button>
+                        </div>
+                    </div>
+                    <div id="sysdesign-chart-container" class="chart-container" style="margin-bottom:24px; min-height:450px;">
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-3); font-size:13px;">Architecture diagram will appear here...</div>
+                    </div>
+                    <div id="sysdesign-details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        const ANALYZE_URL = `/api/analyze`;
+        
+        let activeInputMode = 'prompt';
+        let activeOutputTab = 'flowchart';
+        let uploadedFileContent = '';
+        let detectedLanguage = 'JavaScript';
+        let isAnalyzing = false;
+        let lastResult = null;
+        let currentZoom = 0.95;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'dark',
+                securityLevel: 'loose',
+                fontFamily: 'Inter',
+                flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' }
+            });
+            setupFileUpload();
+        });
+
+        function switchInputMode(mode) {
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.input-mode-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${mode}`).classList.add('active');
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            activeInputMode = mode;
+        }
+
+        function switchOutputTab(tab) {
+            document.querySelectorAll('.out-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.output-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`out-${tab}`).classList.add('active');
+            const targetView = document.getElementById(`view-${tab}`);
+            if(targetView) targetView.classList.add('active');
+            activeOutputTab = tab;
+            
+            if(lastResult) {
+                if(tab === 'flowchart' && lastResult.flowchart) renderFlowchart(lastResult.flowchart);
+                if(tab === 'sysdesign' && (lastResult.systemDesign || lastResult.system_design)) renderSystemDesign(lastResult.systemDesign || lastResult.system_design);
+                if(tab === 'docs' && lastResult.documentation) renderDocs(lastResult.documentation);
+                if(tab === 'techstack' && lastResult.techStack) renderTechStack(lastResult.techStack);
+                if(tab === 'complexity' && lastResult.complexity) renderComplexity(lastResult.complexity);
+            }
+        }
+
+        function setupFileUpload() {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            dropZone.onclick = () => fileInput.click();
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+            dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleFile(e.dataTransfer.files[0]);
+            };
+            fileInput.onchange = (e) => handleFile(e.target.files[0]);
+        }
+
+        function handleFile(file) {
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedFileContent = e.target.result;
+                detectedLanguage = detectLanguageFromFile(file.name, uploadedFileContent);
+                showFileCard(file.name, file.size, detectedLanguage);
+                showCodePreview(uploadedFileContent);
+            };
+            reader.readAsText(file);
+        }
+
+        function detectLanguageFromFile(name, content) {
+            const ext = name.split('.').pop().toLowerCase();
+            const map = { 'js': 'JavaScript', 'jsx': 'JavaScript', 'py': 'Python', 'java': 'Java', 'cpp': 'C++', 'ts': 'TypeScript' };
+            return map[ext] || detectLanguage(content);
+        }
+
+        function showFileCard(name, size, lang) {
+            document.getElementById('drop-zone').style.display = 'none';
+            document.getElementById('file-card').style.display = 'flex';
+            document.getElementById('file-name-display').innerText = name;
+            document.getElementById('file-size-display').innerText = (size / 1024).toFixed(1) + ' KB';
+            document.getElementById('detected-badge').style.display = 'inline-block';
+            document.getElementById('detected-badge').innerText = `Detected: ${lang}`;
+        }
+
+        function showCodePreview(content) {
+            const preview = document.getElementById('code-preview');
+            preview.style.display = 'block';
+            document.getElementById('preview-content').innerText = content.split('\n').slice(0, 8).join('\n');
+        }
+
+        function clearUploadedFile() {
+            uploadedFileContent = '';
+            document.getElementById('drop-zone').style.display = 'flex';
+            document.getElementById('file-card').style.display = 'none';
+            document.getElementById('code-preview').style.display = 'none';
+            document.getElementById('detected-badge').style.display = 'none';
+            document.getElementById('file-input').value = '';
+        }
+
+        function handleEditorUpdate() {
+            const textarea = document.getElementById('code-textarea');
+            const lines = textarea.value.split('\n');
+            document.getElementById('line-nums').innerHTML = Array.from({length: lines.length}, (_, i) => i + 1).join('<br>');
+            document.getElementById('line-count').innerText = `${lines.length} lines`;
+            document.getElementById('char-count').innerText = `${textarea.value.length} chars`;
+        }
+
+        function fillPrompt(text) {
+            document.getElementById('prompt-textarea').value = text;
+            updatePromptStats();
+        }
+
+        function updatePromptStats() {
+            const len = document.getElementById('prompt-textarea').value.length;
+            document.getElementById('prompt-char-count').innerText = `${len}/300`;
+        }
+
+        async function handleAnalyze() {
+            if(isAnalyzing) return;
+            let code = '';
+            let lang = 'JavaScript';
+
+            if(activeInputMode === 'upload') { code = uploadedFileContent; lang = detectedLanguage; }
+            else if(activeInputMode === 'write') { code = document.getElementById('code-textarea').value; lang = document.getElementById('lang-select').value; }
+            else { code = `// Logic: ${document.getElementById('prompt-textarea').value}`; lang = 'Pseudocode'; }
+
+            if(!code.trim()) { showToast('Provide code or logic', 'orange'); return; }
+
+            setLoading(true);
+            const terminal = document.getElementById('analysis-terminal');
+            const lines = [
+                "Initializing Deep Logic Scanner...",
+                "Parsing code structures & dependency graph...",
+                "Calculating algorithmic complexity (Big O)...",
+                "Generating enterprise-grade documentation...",
+                "Finalizing architectural visualization..."
+            ];
+            
+            let lineIdx = 0;
+            const terminalInterval = setInterval(() => {
+                if(lineIdx < lines.length) {
+                    terminal.innerHTML = lines.slice(0, lineIdx + 1).map((l, i) => 
+                        `<div class="terminal-line ${i === lineIdx ? 'active' : 'done'}">${i < lineIdx ? '✓' : '>'} ${l}</div>`
+                    ).join('');
+                    lineIdx++;
+                }
+            }, 1500);
+
+            try {
+                const res = await fetch(ANALYZE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code, type: 'expert_visualize', mode: 'expert' })
+                });
+                if(!res.ok) throw new Error('API Error');
+                const result = await res.json();
+                clearInterval(terminalInterval);
+                lastResult = result;
+                renderAll(result);
+                switchOutputTab('flowchart');
+                showSuccessToast('Architectural analysis complete');
+            } catch(e) {
+                console.error(e);
+                clearInterval(terminalInterval);
+                showToast('Analysis failed. Try again.', 'red');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function renderAll(data) {
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('main-export-btn').classList.add('active');
+            
+            const flowchart = data.flowchart || data.flow_chart;
+            const documentation = data.documentation || data.docs;
+            const techStack = data.techStack || data.tech_stack;
+            const complexity = data.complexity;
+            const sysDesign = data.systemDesign || data.system_design;
+
+            if (flowchart) renderFlowchart(flowchart);
+            if (documentation) renderDocs(documentation);
+            if (techStack) renderTechStack(techStack);
+            if (complexity) renderComplexity(complexity);
+            if (sysDesign) renderSystemDesign(sysDesign);
+        }
+
+        async function renderFlowchart(code) {
+            const container = document.getElementById('flowchart-container');
+            if (!container || !code) return;
+            
+            try {
+                let cleaned = code.trim();
+                const mermaidMatch = cleaned.match(/```mermaid\s*([\s\S]*?)```/) || cleaned.match(/```\s*([\s\S]*?)```/);
+                if (mermaidMatch) cleaned = mermaidMatch[1].trim();
+                cleaned = cleaned.replace(/^mermaid\s+/i, '');
+                
+                // Suppress global error injection by checking syntax first
+                try {
+                    await mermaid.parse(cleaned);
+                } catch (parseErr) {
+                    console.warn("Mermaid Parse Error:", parseErr);
+                    throw new Error("Syntax error");
+                }
+
+                const uniqueId = 'flow' + Math.random().toString(36).substr(2, 9);
+                const { svg } = await mermaid.render(uniqueId, cleaned);
+                
+                container.innerHTML = `<div class="mermaid-wrapper" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${svg}</div>`;
+                
+                const svgEl = container.querySelector('svg');
+                if (svgEl) {
+                    svgEl.style.width = '100%'; svgEl.style.height = 'auto';
+                    const viewBox = svgEl.getAttribute('viewBox');
+                    if (viewBox) {
+                        const [, , w, h] = viewBox.split(' ').map(Number);
+                        svgEl.dataset.baseWidth = w || 800;
+                        svgEl.dataset.baseHeight = h || 600;
+                    }
+                    fitScreen();
+                }
+            } catch (err) {
+                console.error("Mermaid Render Error:", err);
+                container.innerHTML = `
+                    <div class="render-error" style="padding:40px; text-align:center; color:var(--text-3);">
+                        <div style="font-size:40px; margin-bottom:15px;">🧩</div>
+                        <div style="font-size:14px; font-weight:700; color:var(--text-1); margin-bottom:8px;">Blueprint Optimization Required</div>
+                        <div style="font-size:11px; opacity:0.7; max-width:400px; margin:0 auto;">The AI generated a structure that is too complex for standard visualization. Click below to simplify.</div>
+                        <button class="icon-btn" onclick="handleAnalyze()" style="margin-top:20px; background:var(--accent); color:white; border:none; padding:8px 20px;">⚡ Regenerate Layout</button>
+                    </div>`;
+            }
+        }
+
+        async function renderSystemDesign(data) {
+            const container = document.getElementById('sysdesign-chart-container');
+            const details = document.getElementById('sysdesign-details');
+            if(!data) return;
+
+            let diagram = data.mermaidDiagram || data.mermaid_diagram || data.diagram || (data.systemDesign ? (data.systemDesign.mermaidDiagram || data.systemDesign.mermaid_diagram) : null);
+            
+            if (!diagram) {
+                const archType = (data.architecture || (data.systemDesign && data.systemDesign.architecture) || 'Microservices').toLowerCase();
+                if (archType.includes('micro')) {
+                    diagram = 'graph LR\n  Client["Client"] --> API["Gateway"]\n  API --> S1["Auth Service"]\n  API --> S2["Core Logic"]\n  S2 --> DB[("Primary DB")]';
+                } else if (archType.includes('serverless')) {
+                    diagram = 'graph LR\n  Client["Client"] --> Lambda["AWS Lambda"]\n  Lambda --> Dynamo["DynamoDB"]\n  Lambda --> S3["S3 Bucket"]';
+                } else {
+                    diagram = 'graph LR\n  Client["User Agent"] --> Srv["Main Server"]\n  Srv --> DB[("Application DB")]';
+                }
+            }
+
+            if (diagram) {
+                try {
+                    let cleaned = diagram.trim();
+                    if (cleaned.startsWith('```')) cleaned = cleaned.replace(/```mermaid|```/g, '').trim();
+                    cleaned = cleaned.replace(/^mermaid\s+/i, '');
+
+                    // Suppress global error injection by checking syntax first
+                    try {
+                        await mermaid.parse(cleaned);
+                    } catch (pe) {
+                        throw new Error("Syntax error");
+                    }
+
+                    const uniqueId = 'sys' + Math.random().toString(36).substr(2, 9);
+                    const { svg } = await mermaid.render(uniqueId, cleaned);
+                    
+                    container.innerHTML = `<div class="mermaid-wrapper" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">${svg}</div>`;
+                    
+                    const svgEl = container.querySelector('svg');
+                    if (svgEl) {
+                        svgEl.style.width = '100%'; svgEl.style.height = 'auto';
+                        const viewBox = svgEl.getAttribute('viewBox');
+                        if (viewBox) {
+                            const [, , w, h] = viewBox.split(' ').map(Number);
+                            svgEl.dataset.baseWidth = w || 1000;
+                            svgEl.dataset.baseHeight = h || 800;
+                        }
+                    }
+                } catch(e) {
+                    console.error("SysDesign Render Error:", e);
+                    container.innerHTML = `<div style="padding:40px; color:var(--text-3); font-size:13px; text-align:center;">
+                        <div style="font-size:30px; margin-bottom:15px;">🏗️</div>
+                        Topological Blueprint in optimization...<br>
+                        <span style="font-size:11px; opacity:0.6;">(Layout structure being simplified)</span>
+                    </div>`;
+                }
+            }
+
+            const arch = data.architecture || data.arch || 'Custom Enterprise Architecture';
+            const scale = data.scalability || data.scale || 'High-availability distributed model.';
+            
+            let html = `
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div class="sys-detail-card">
+                        <div class="label-text" style="color:var(--accent); font-weight:700;">🏗️ SYSTEM TOPOLOGY</div>
+                        <div style="margin-top:10px; font-size:15px; font-weight:600; color:var(--text-1);">${arch}</div>
+                    </div>
+                    <div class="sys-detail-card">
+                        <div class="label-text" style="color:var(--green); font-weight:700;">🚀 DEPLOYMENT SCALE</div>
+                        <div style="margin-top:10px; font-size:13px; color:var(--text-2);">${scale}</div>
+                    </div>
+                </div>
+            `;
+
+            const comps = data.components || [];
+            if (comps.length > 0) {
+                html += `<div class="sys-detail-card" style="margin-top:20px;">
+                    <div class="label-text">INFRASTRUCTURE STACK</div>
+                    <div style="margin-top:12px; display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+                        ${comps.map(c => `
+                            <div style="padding:15px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; position:relative; overflow:hidden;">
+                                <div style="position:absolute; top:0; right:0; width:40px; height:40px; background:var(--accent-dim); opacity:0.1; border-bottom-left-radius:100%;"></div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-weight:700; color:var(--text-1); font-size:13px;">${c.name}</span>
+                                    <span style="font-size:9px; background:var(--accent-dim); color:var(--accent); padding:2px 6px; border-radius:4px; font-weight:800; border:1px solid rgba(124,58,237,0.2);">${(c.type || 'Service').toUpperCase()}</span>
+                                </div>
+                                <div style="font-size:11px; color:var(--text-3); margin-top:8px; line-height:1.5;">${c.desc || c.description || ''}</div>
+                                <div style="font-size:10px; font-family:'JetBrains Mono'; color:var(--accent); margin-top:10px; border-top:1px solid var(--border); pt-10; padding-top:8px;">
+                                    <span style="opacity:0.6;">Tech:</span> ${c.tech || 'Standard'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+            
+            const dFlow = data.dataFlow || data.data_flow || [];
+            if (dFlow.length > 0) {
+                html += `<div class="sys-detail-card" style="margin-top:20px;">
+                    <div class="label-text">DATA PROPAGATION PATHWAY</div>
+                    <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+                        ${dFlow.map((f, i) => `
+                            <div style="display:flex; align-items:center; gap:12px; background:var(--bg-mid); padding:12px 18px; border-radius:12px; border:1px solid var(--border); position:relative;">
+                                <div style="width:24px; height:24px; border-radius:8px; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; box-shadow:0 4px 12px rgba(124,58,237,0.3);">${i+1}</div>
+                                <div style="flex:1; display:flex; align-items:center; justify-content:space-between;">
+                                    <span style="font-weight:700; font-size:12px; color:var(--text-1);">${f.from}</span>
+                                    <div style="flex:1; margin:0 20px; position:relative; display:flex; align-items:center; justify-content:center;">
+                                        <div style="width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--accent), transparent); opacity:0.3;"></div>
+                                        <span style="position:absolute; background:var(--bg-mid); padding:0 10px; font-size:10px; color:var(--accent); font-family:'JetBrains Mono'; font-weight:700; letter-spacing:0.05em;">${f.label.toUpperCase()}</span>
+                                    </div>
+                                    <span style="font-weight:700; font-size:12px; color:var(--text-1);">${f.to}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+            details.innerHTML = html;
+        }
+
+        function renderDocs(data) {
+            const container = document.getElementById('docs-container');
+            const fns = data.functions || [];
+            
+            let html = `
+                <div class="overview-card" style="margin-bottom:24px;">
+                    <div class="overview-title">📋 ARCHITECTURAL OVERVIEW</div>
+                    <div class="overview-text" style="font-size:15px; line-height:1.7;">${data.overview}</div>
+                </div>
+                <div class="docs-layout">
+                    <div class="docs-nav">
+                        <div class="label-text" style="margin-bottom:12px; padding-left:12px;">MODULES</div>
+                        ${fns.map((fn, i) => `
+                            <div class="docs-nav-item ${i===0?'active':''}" onclick="scrollToDoc(${i})">
+                                ${fn.name}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="docs-content">
+                        ${fns.map((fn, i) => `
+                            <div class="doc-card" id="doc-card-${i}">
+                                <div class="fn-header">
+                                    <div class="fn-meta">
+                                        <div class="fn-type-badge">${fn.type || 'Method'}</div>
+                                        <div class="fn-name-big">${fn.name}</div>
+                                    </div>
+                                    <div class="type-pill">v1.0.0</div>
+                                </div>
+                                <div class="fn-desc-big">${fn.description}</div>
+                                
+                                ${fn.example ? `
+                                    <div class="code-example-wrap">
+                                        <div class="example-header">
+                                            <div class="example-label"><span>📄</span> IMPLEMENTATION EXAMPLE</div>
+                                            <button class="copy-btn-sm" onclick="copyToClipboard(\`${fn.example.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">Copy Code</button>
+                                        </div>
+                                        <pre class="example-pre"><code>${fn.example}</code></pre>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function scrollToDoc(idx) {
+            const el = document.getElementById(`doc-card-${idx}`);
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.querySelectorAll('.docs-nav-item').forEach((item, i) => {
+                item.classList.toggle('active', i === idx);
+            });
+        }
+
+        function getTechIcon(name) {
+            const n = (name || '').toLowerCase();
+            if(n.includes('react')) return '<i class="fab fa-react" style="color:#61dafb"></i>';
+            if(n.includes('vue')) return '<i class="fab fa-vuejs" style="color:#42b883"></i>';
+            if(n.includes('angular')) return '<i class="fab fa-angular" style="color:#dd0031"></i>';
+            if(n.includes('node')) return '<i class="fab fa-node-js" style="color:#339933"></i>';
+            if(n.includes('python')) return '<i class="fab fa-python" style="color:#3776ab"></i>';
+            if(n.includes('js') || n.includes('javascript')) return '<i class="fab fa-js" style="color:#f7df1e"></i>';
+            if(n.includes('ts') || n.includes('typescript')) return '<span style="color:#3178c6; font-weight:bold;">TS</span>';
+            if(n.includes('java')) return '<i class="fab fa-java" style="color:#007396"></i>';
+            if(n.includes('docker')) return '<i class="fab fa-docker" style="color:#2496ed"></i>';
+            if(n.includes('aws')) return '<i class="fab fa-aws" style="color:#ff9900"></i>';
+            if(n.includes('sql') || n.includes('db')) return '<i class="fas fa-database" style="color:#4479a1"></i>';
+            if(n.includes('css')) return '<i class="fab fa-css3-alt" style="color:#1572b6"></i>';
+            if(n.includes('html')) return '<i class="fab fa-html5" style="color:#e34f26"></i>';
+            return '<i class="fas fa-microchip" style="color:var(--accent)"></i>';
+        }
+
+        function renderTechStack(data) {
+            const container = document.getElementById('techstack-container');
+            if(!data) return;
+            const concepts = data.concepts || [];
+            const language = data.language || 'Unknown';
+            
+            let html = `
+                <div class="tech-grid">
+                    <div class="tech-card" style="grid-column: span 2; border-color: var(--accent); background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), transparent);">
+                        <div class="tech-top">
+                            <div class="tech-icon-box" style="font-size:24px;">${getTechIcon(language)}</div>
+                            <div class="tech-info">
+                                <div class="tech-name">${language}</div>
+                                <div class="tech-ver">Primary Logic Engine</div>
+                            </div>
+                            <div class="confidence-badge">Core</div>
+                        </div>
+                        <div class="tech-level-wrap"><div class="tech-level-fill" style="width: 100%"></div></div>
+                        <div class="tech-stat"><span>Reliability: Mission-Critical</span><span>Scale: Enterprise</span></div>
+                    </div>
+                    ${concepts.map(c => `
+                        <div class="tech-card">
+                            <div class="tech-top">
+                                <div class="tech-icon-box" style="font-size:18px;">${getTechIcon(c)}</div>
+                                <div class="tech-info">
+                                    <div class="tech-name">${c}</div>
+                                    <div class="tech-ver">Architectural Pillar</div>
+                                </div>
+                            </div>
+                            <div class="tech-level-wrap"><div class="tech-level-fill" style="width: ${60 + Math.random()*35}%"></div></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderComplexity(data) {
+            const container = document.getElementById('complexity-container');
+            if(!data) return;
+            
+            const score = data.score || 85;
+            
+            // Generate dynamic radar points based on score
+            const p1 = 50 - (score * 0.4); // Top
+            const p2 = 50 + (score * 0.4); // Right
+            const p3 = 50 + (score * 0.4); // Bottom
+            const p4 = 50 - (score * 0.4); // Left
+            const points = `50,${p1} ${p2},50 50,${p3} ${p4},50`;
+
+            let html = `
+                <div class="complexity-hero">
+                    <div class="hero-bg-glow"></div>
+                    <div class="hero-content">
+                        <div class="radar-box">
+                            <svg viewBox="0 0 100 100" class="radar-svg">
+                                <circle cx="50" cy="50" r="45" class="radar-circle" />
+                                <circle cx="50" cy="50" r="30" class="radar-circle" />
+                                <circle cx="50" cy="50" r="15" class="radar-circle" />
+                                <path d="M50 5 L50 95 M5 50 L95 50" class="radar-axis" />
+                                <polygon points="${points}" class="radar-area" />
+                            </svg>
+                        </div>
+                        <div class="score-display">
+                            <div class="score-title">Architectural Health</div>
+                            <div class="score-big">${score}%</div>
+                            <div class="score-label">Grade: ${data.grade || 'A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="metrics-detailed">
+                    <div class="detail-metric-card">
+                        <div class="metric-icon">🚀</div>
+                        <div class="metric-name">Time Complexity</div>
+                        <div class="metric-big-val">${data.timeComplexity || 'O(n)'}</div>
+                        <div class="metric-status status-optimal">Dynamic Analysis</div>
+                    </div>
+                    <div class="detail-metric-card">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-name">Memory Load</div>
+                        <div class="metric-big-val">${data.memory || 'Low'}</div>
+                        <div class="metric-status status-optimal">Resource Safe</div>
+                    </div>
+                    <div class="detail-metric-card">
+                        <div class="metric-icon">🛠️</div>
+                        <div class="metric-name">Maintainability</div>
+                        <div class="metric-big-val">${score > 80 ? 'High' : (score > 60 ? 'Moderate' : 'Low')}</div>
+                        <div class="metric-status status-optimal">Code Quality</div>
+                    </div>
+                </div>
+
+                ${data.tips ? `
+                    <div class="sys-detail-card" style="margin-top:24px;">
+                        <div class="label-text" style="color:var(--accent); font-weight:700; margin-bottom:15px;">💎 EXPERT OPTIMIZATION TIPS</div>
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            ${data.tips.map(tip => `
+                                <div style="display:flex; gap:14px; align-items:flex-start; background:var(--bg-mid); padding:12px; border-radius:10px; border:1px solid var(--border);">
+                                    <div style="width:24px; height:24px; border-radius:6px; background:var(--accent-dim); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px;">⚡</div>
+                                    <div style="font-size:13px; color:var(--text-1); line-height:1.5;">${tip}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            container.innerHTML = html;
+        }
+
+        function setLoading(val) {
+            isAnalyzing = val;
+            document.getElementById('analyze-btn').disabled = val;
+            document.getElementById('loading-state').style.display = val ? 'block' : 'none';
+        }
+
+        function showToast(msg, color) {
+            const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg; document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function showSuccessToast(msg) {
+            showToast(`✓ ${msg}`, 'green');
+        }
+
+        function detectLanguage(code) {
+            if (/def |import /.test(code)) return 'Python';
+            return 'JavaScript';
+        }
+
+        function fitScreen() {
+            const container = activeOutputTab === 'flowchart' ? 
+                document.getElementById('flowchart-container') : 
+                document.getElementById('sysdesign-chart-container');
+            const svg = container ? container.querySelector('svg') : null;
+            if (!svg) return;
+            const bw = parseFloat(svg.dataset.baseWidth);
+            const bh = parseFloat(svg.dataset.baseHeight);
+            if (!bw || !bh) return;
+            currentZoom = Math.min((container.clientWidth - 40) / bw, (container.clientHeight - 40) / bh, 1.2);
+            applyZoom();
+        }
+
+        function zoomIn() { currentZoom *= 1.1; applyZoom(); }
+        function zoomOut() { currentZoom /= 1.1; applyZoom(); }
+        function resetZoom() { currentZoom = 1.0; applyZoom(); }
+        function applyZoom() {
+            const container = activeOutputTab === 'flowchart' ? 
+                document.getElementById('flowchart-container') : 
+                document.getElementById('sysdesign-chart-container');
+            const svg = container ? container.querySelector('svg') : null;
+            if (!svg) return;
+
+            const bw = parseFloat(svg.dataset.baseWidth) || 800;
+            const bh = parseFloat(svg.dataset.baseHeight) || 600;
+            svg.style.width = (bw * currentZoom) + 'px';
+            svg.style.height = (bh * currentZoom) + 'px';
+        }
+
+        function toggleFullscreen() {
+            const container = activeOutputTab === 'flowchart' ? 
+                document.getElementById('flowchart-container') : 
+                document.getElementById('sysdesign-chart-container');
+            if(!container) return;
+            if (!document.fullscreenElement) container.requestFullscreen();
+            else document.exitFullscreen();
+        }
+
+        function copyShareLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => showToast('Link copied to clipboard', 'var(--accent)'));
+        }
+
+        async function downloadPDF() {
+            showToast('Generating PDF...', 'var(--accent)');
+            window.print();
+        }
+    </script>
+</body>
+</html>

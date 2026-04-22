@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 4 depth levels — never use just one bg color */
+  --d0: #05050c;   /* page background — deepest */
+  --d1: #0b0b14;   /* card backgrounds */
+  --d2: #111120;   /* raised surfaces */
+  --d3: #18182a;   /* hover, active states */
+
+  /* Borders — always subtle */
+  --b0: rgba(255,255,255,0.05);   /* barely visible */
+  --b1: rgba(255,255,255,0.09);   /* default */
+  --b2: rgba(255,255,255,0.15);   /* hover */
+  --b3: rgba(255,255,255,0.22);   /* focus/active */
+
+  /* Brand purple */
+  --p:     #7c3aed;
+  --p2:    #5b21b6;
+  --p3:    #4f46e5;
+  --pl:    #a78bfa;   /* light purple */
+  --pdim:  rgba(124,58,237,0.10);
+  --pglow: rgba(124,58,237,0.28);
+  --pgrad: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4f46e5 100%);
+
+  /* Semantic colors */
+  --green:  #22c55e;  --green-dim:  rgba(34,197,94,0.12);
+  --blue:   #3b82f6;  --blue-dim:   rgba(59,130,246,0.12);
+  --yellow: #eab308;  --yellow-dim: rgba(234,179,8,0.12);
+  --orange: #f97316;  --orange-dim: rgba(249,115,22,0.12);
+  --red:    #ef4444;  --red-dim:    rgba(239,68,68,0.12);
+  --cyan:   #06b6d4;  --cyan-dim:   rgba(6,182,212,0.12);
+
+  /* Text — 4 levels */
+  --t1: #ededf5;   /* primary — almost white */
+  --t2: #8a8aa8;   /* secondary */
+  --t3: #46465e;   /* muted */
+  --t4: #28283a;   /* disabled */
+
+  /* Gradients */
+  --grad-hero: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #60a5fa 100%);
+  --grad-card: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(79,70,229,0.04));
+
+  /* Typography */
+  --f-sans: 'Inter', -apple-system, sans-serif;
+  --f-mono: 'JetBrains Mono', monospace;
+
+  --sz-hero:   clamp(52px, 8.5vw, 96px);
+  --sz-h2:     clamp(34px, 5vw, 56px);
+  --sz-h3:     clamp(22px, 3vw, 32px);
+  --sz-body:   16px;
+  --sz-sm:     13.5px;
+  --sz-xs:     11.5px;
+
+  --w-black:  900;
+  --w-bold:   700;
+  --w-semi:   600;
+  --w-mid:    500;
+  --w-reg:    400;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: var(--f-sans);
+  background: var(--d0);
+  color: var(--t1);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+::selection { background:rgba(124,58,237,0.35); color:var(--t1); }
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:#1e1e2e; border-radius:3px; }
+.container { max-width:1120px; margin:0 auto; padding:0 28px; }
+
+/* Gradient text */
+.gt {
+  background: var(--grad-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes pulse-green {
+  0%,100% { box-shadow:0 0 0 0 rgba(34,197,94,0.5); }
+  50%      { box-shadow:0 0 0 5px rgba(34,197,94,0); }
+}
+@keyframes glow-breathe {
+  0%,100% { box-shadow:0 0 28px rgba(124,58,237,0.2), 0 0 0 1px rgba(124,58,237,0.1); }
+  50%      { box-shadow:0 0 56px rgba(124,58,237,0.5), 0 0 0 1px rgba(124,58,237,0.3); }
+}
+@keyframes float-card {
+  0%,100% { transform:translateY(0px) rotate(-0.3deg); }
+  50%      { transform:translateY(-14px) rotate(0.3deg); }
+}
+@keyframes rotate-ring {
+  from { transform:translate(-50%,-50%) rotate(0deg); }
+  to   { transform:translate(-50%,-50%) rotate(360deg); }
+}
+@keyframes marquee-ltr {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes marquee-rtl {
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+@keyframes arrow-bounce {
+  0%,100% { transform:translateX(0); }
+  50%      { transform:translateX(5px); }
+}
+@keyframes scan {
+  0%   { top:-5%; opacity:0; }
+  5%   { opacity:1; }
+  95%  { opacity:1; }
+  100% { top:105%; opacity:0; }
+}
+@keyframes blink-cursor {
+  0%,100% { opacity:1; }
+  50%      { opacity:0; }
+}
+@keyframes node-pop {
+  0%   { opacity:0; transform:scale(0.1) translateY(8px); }
+  70%  { transform:scale(1.08) translateY(-2px); }
+  100% { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes line-draw {
+  from { stroke-dashoffset:1; opacity:0; }
+  to   { stroke-dashoffset:0; opacity:1; }
+}
+@keyframes label-appear {
+  from { opacity:0; }
+  to   { opacity:1; }
+}

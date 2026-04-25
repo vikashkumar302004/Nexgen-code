@@ -14,7 +14,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DiffEditor } from '@monaco-editor/react';
 import mermaid from 'mermaid';
 
-const API_URL = '/api/analyze';
+const API_URL = window.location.hostname.includes('vercel.app') 
+  ? 'https://nexgen-code.onrender.com/api/analyze' 
+  : '/api/analyze';
 
 // Helper for API with retry
 const fetchWithRetry = async (url, options, retries = 3, backoff = 500) => {
